@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import CreateView, ListView
+from core.views import send_transaction_email
 from transactions.models import Transaction
 from transactions.constants import DEPOSIT, WITHDRAWAL, LOAN, LOAN_PAID
 from transactions.forms import (DepositForm, WithdrawForm, LoanRequestForm)
@@ -36,6 +37,7 @@ class TransactionCreateMixin(LoginRequiredMixin, CreateView):
 
         return context
 
+
 # deposit view    
 class DepositMoneyView(TransactionCreateMixin):
     form_class = DepositForm
@@ -56,6 +58,12 @@ class DepositMoneyView(TransactionCreateMixin):
             self.request,
             f'{"{:,.2f}".format(float(amount))}$ was deposited to your account successfully'
         )
+
+        body_content = f"""
+            <p>Your deposit request for ${amount} has been successfully completed. After deposit, your total balance is ${account.balance}.</p>
+        """
+
+        send_transaction_email(self.request.user, "Deposite Confirmation Message", body_content)
 
         return super().form_valid(form)
     
@@ -80,6 +88,12 @@ class WithdrawMoneyView(TransactionCreateMixin):
             self.request,
             f'Successfully withdrawn {"{:,.2f}".format(float(amount))}$ from your account'
         )
+
+        body_content = f"""
+            <p>Your Withdrawal request for ${amount} has been successfully completed. After withdrawal your total balance is {self.request.user.account.balance}</p>
+        """
+
+        send_transaction_email(self.request.user, "Withdrawal Confirmation Message", body_content)
 
         return super().form_valid(form)
     
@@ -106,6 +120,12 @@ class LoanRequestView(TransactionCreateMixin):
             self.request,
             f'Loan request for {"{:,.2f}".format(float(amount))}$ submitted successfully'
         )
+
+        body_content = f"""
+            <p>Your loan request of ${amount} has been successfully submitted to the bank. Please, wait for authority approval. We will inform you on further update through confirmation email.</p>
+        """
+
+        send_transaction_email(self.request.user, "Loan Request Message", body_content)
 
         return super().form_valid(form)
     
@@ -160,7 +180,7 @@ class PayLoanView(LoginRequiredMixin, View):
                 loan.loan_approved = True
                 loan.transaction_type = LOAN_PAID
                 loan.save()
-                return redirect('loan_list')
+                return redirect('transaction_report')
             else:
                 messages.error(
             self.request,
@@ -173,7 +193,7 @@ class PayLoanView(LoginRequiredMixin, View):
 # loan list
 class LoanListView(LoginRequiredMixin,ListView):
     model = Transaction
-    template_name = 'loan_request.html'
+    template_name = 'loan_report.html'
     context_object_name = 'loans' # loan list ta ei loans context er moddhe thakbe
     
     def get_queryset(self):

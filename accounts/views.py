@@ -10,7 +10,7 @@ from django.contrib.auth.views import LoginView, LogoutView
 class UserRegistrationView(FormView):
     template_name = 'user_registration.html'
     form_class = UserRegistrationForm
-    success_url = reverse_lazy('register')
+    success_url = reverse_lazy('profile')
 
     def form_valid(self, form):
         user = form.save()
@@ -30,7 +30,7 @@ class UserBankAccountUpdateView(View):
         form = UserUpdateForm(request.POST, instance=request.user)
         if form.is_valid():
             form.save()
-            return redirect('profile')  # Redirect to the user's profile page
+            return redirect('profile')
         return render(request, self.template_name, {'form': form})
     
 
