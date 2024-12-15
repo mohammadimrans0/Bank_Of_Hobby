@@ -20,6 +20,7 @@ SECRET_KEY = env('SECRET_KEY')
 DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
+CSRF_TRUSTED_ORIGINS = ['https://bank-of-hobby.onrender.com', 'http://*.127.0.0.1']
 
 
 # Application definition
