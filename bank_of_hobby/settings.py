@@ -1,5 +1,7 @@
 from pathlib import Path
 from environ import Env
+# Import dj-database-url at the beginning of the file.
+import dj_database_url
 
 env = Env()
 Env.read_env()
@@ -14,7 +16,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = []
 
@@ -64,26 +67,23 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'bank_of_hobby.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
+# local database
 # DATABASES = {
 #     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
+#         'ENGINE': 'django.db.backends.postgresql', 
+#         'NAME': env('DB_NAME'),
+#         'USER': env('DB_USER'),
+#         'PASSWORD': env('DB_PASSWORD'),
+#         'HOST': env('DB_HOST'),
+#         'PORT': env('DB_PORT'),                      
 #     }
 # }
 
+# render database
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql', 
-        'NAME': env('DB_NAME'),
-        'USER': env('DB_USER'),
-        'PASSWORD': env('DB_PASSWORD'),
-        'HOST': env('DB_HOST'),
-        'PORT': env('DB_PORT'),                      
-    }
+    'default': dj_database_url.config(
+        default='postgresql://bank_of_hobby_user:m11HB2TpEaXjVR3EP84m9mq8b9nlWSWm@dpg-ctfg2n52ng1s738jeedg-a.oregon-postgres.render.com/bank_of_hobby',
+    )
 }
 
 
